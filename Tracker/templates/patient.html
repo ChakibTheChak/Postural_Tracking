@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}
+Patient Page
+{% endblock%}
+
+{% block content %}
+
+<body class=" text-center">
+    <div class="container">
+        <h1> Patients List </h1>
+        <table class="table table-hover table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">first name</th>
+                        <th scope="col">last name</th>
+                        <th scope="col">email address</th>
+                        <th scope="col">birth date</th>
+                        <th scope="col">pathology</th>
+                        <th scope="col">Options</th>
+                    </tr>
+                </thead>
+            <tbody> 
+                    {% for item in patients %}
+                    {% include 'includes/patient_modals.html' %}
+                        <tr>
+                            <td> {{item.first_name}}</td>
+                            <td> {{item.last_name}}</td>
+                            <td> {{item.email_address}}</td>
+                            <td> {{item.birthdate}}</td>
+                            <td>{{item.pathology}}</td>
+                            <td>
+                            <button class="btn btn-outline btn-info" data-toggle="modal" data-target="#Modal-Edit{{ item.id }}"> Edit </button>
+                            <button class="btn btn-outline btn-danger" data-toggle="modal" data-target="#Modal-Delete{{ item.id }}"> Delete </button>
+                            </td>
+                        </tr>
+                    {% endfor %}                
+            </tbody>
+        
+        </table>
+    </div>
+</body>
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}
+Settings Page
+{% endblock%}
+
+{% block content %}
+
+<body class=" text-center">
+    <div class="container">
+
+        <form method="POST" class="form-settings" style="color:white ; text-align: justify;">
+            {{ form.hidden_tag() }} 
+            <br>
+                <h1 class="h3 mb-3 font-weight-normal">
+                    Please Set your streaming parameters
+                </h1>
+            <br>
+                {{form.capture.label()}}
+                {{form.capture(class="form-control",placeholder= settings.capture )}}
+
+                {{form.rtsp_user.label()}}
+                {{form.rtsp_user(class="form-control",placeholder=settings.rtsp_user )}}
+
+                {{form.rtsp_pw.label()}}
+                {{form.rtsp_pw(class="form-control",placeholder=settings.rtsp_pw)}}
+
+                {{form.rtsp_ip.label()}}
+                {{form.rtsp_ip(class="form-control",placeholder=settings.rtsp_ip)}}
+
+                {{form.rtsp_port.label()}}
+                {{form.rtsp_port(class="form-control",placeholder=settings.port)}}
+
+                {{form.rtsp_channel.label()}}
+                {{form.rtsp_channel(class="form-control",placeholder=settings.channel)}}
+
+                {{form.rtsp_path.label()}}
+                {{form.rtsp_path(class="form-control",placeholder=settings.path)}}
+
+                {{form.rtsp_custom.label()}}
+                {{form.rtsp_custom(class="form-control",placeholder=settings.custom)}}
+
+                {{form.stream_mode.label()}}
+                {{form.stream_mode(class="form-control",placeholder="Streaming mode (0 : web cam ,1: generated rtsp path , 2: custom rtsp path)")}}      
+
+            <br>
+                {{form.submit(class="btn btn-lg  tn-block btn-primary")}}
+
+        </form>
+    </div>
+</body>
+
+
+{% endblock %}

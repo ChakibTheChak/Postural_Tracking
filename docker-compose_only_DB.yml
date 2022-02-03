@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  Database:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password       
+      MYSQL_DATABASE: posturaltracker
+      MYSQL_USER: chakib
+      MYSQL_PASSWORD: ChakibHani1983
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/:ro
+ 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: 'Phpmyadmin'
+    links:
+      - Database
+    environment:
+      PMA_HOST: Database
+      PMA_PORT: 3306
+    ports:
+      - '800:80'

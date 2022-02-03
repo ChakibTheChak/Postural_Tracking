@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Video Streaming
+{% endblock %}
+
+{% block content %}   
+  <div class="container">
+      <div class="row">
+          <div class="col-lg-10 offset-lg-2">			
+            <h1 class="mt-5">Postural Tracker Streaming</h1>
+
+              <form method="POST" action="{{ url_for('track') }}">               
+                <button type="submit" class="btn btn-primary mb-3"  name="tracking" value= "{{ btn_status }}"> {{ btn_status }}</button>
+                <br>
+                <img src="{{ url_for('video') }}"  hight={{ hight }} width={{ width }} style="margin:5px" >
+                
+                <select name="patient" id="patient" class="form-control -selectpicker-lg mb-3" data-live-search="false">
+                  <option value ="Select patient">Select patient</option>
+                  {% for item in patients %}
+                  <option value="{{ item.last_name }}" SELECTED>{{ item.last_name }}</option>                 
+                  {% endfor %}
+                </select>
+
+                <input class="btn btn-primary" type="submit" value="Start Record">
+                <input class="btn btn-primary" type="reset" value="Tracking Settings">
+
+
+              </form>     
+                
+            
+              <h2 style="font-family:courier;">Instructions:</h2>
+              <ol style="font-family:courier;">			
+              <li>Start Tracking--Start the postural tracking of the live stream</li>
+              <li>Stop/Start Record--Toggle between stop or start recording postular Data streaming</li>
+
+          </div>
+      </div>
+  </div>
+{% endblock %}

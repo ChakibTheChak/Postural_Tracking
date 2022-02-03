@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}
+Patient Page
+{% endblock%}
+
+{% block content %}
+<body class=" text-center">
+    <div class="container">
+        
+            <form method="POST" class="form-patient"  style="color:white" >
+                {{ form.hidden_tag() }} 
+                <br>
+                    <h1 class="h3 mb-3 font-weight-normal">
+                        Register a patient
+                    </h1>
+                <br>
+                {{form.first_name.label()}}
+                {{form.first_name(class="form-control",placeholder="First Name")}}
+
+                {{form.last_name.label()}}
+                {{form.last_name(class="form-control",placeholder="Last Name")}}
+
+                {{form.birth_date.label()}}
+                {{form.birth_date(class="form-control",placeholder="Birth Date")}}
+
+                {{form.email_address.label()}}
+                {{form.email_address(class="form-control",placeholder="Email Address")}}            
+
+                {{form.pathology.label()}}
+                {{form.pathology(class="form-control",placeholder="Patient Pathology")}}
+
+                <br>
+                {{form.submit(class="btn btn-lg  tn-block btn-primary")}}
+            </form>
+        
+
+    </div>
+</body>
+{% endblock %}
