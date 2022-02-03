@@ -187,8 +187,11 @@ def track():
     global tracking      
     if request.method=='POST':
         if request.form.get('tracking')=='Start Tracking' :            
-            tracking= not tracking                    
-            return render_template('Video_Stream.html', btn_status='Stop Tracking')
+            tracking= not tracking
+            hight=str(100)+"%" 
+            width=str(100)+"%"
+            patients=Patient.query.filter_by(owner=current_user.id).all()                    
+            return render_template('Video_Stream.html', btn_status='Stop Tracking',hight=hight,width=width,patients=patients)
         else :
             tracking= not tracking            
             return render_template('Video_Stream.html', btn_status='Start Tracking')      

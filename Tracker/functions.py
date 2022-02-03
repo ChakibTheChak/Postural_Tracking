@@ -42,6 +42,10 @@ def gen_frames(Capture,stream_mode,rtsp_path,custom_rtsp_path,tracking,min_detec
                     yield (b'--frame\r\n'
                         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
                 else :  
+                        width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+                        height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+                        # print("Camera resolution is:" ,width,height)
+
                         image=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                         fliped_image=cv2.flip(image,1)                        
                         fliped_image.flags.writeable=False                        
@@ -75,7 +79,6 @@ def gen_frames(Capture,stream_mode,rtsp_path,custom_rtsp_path,tracking,min_detec
 
                             left_ESS_angle= round(calculate_angle(left_ear,left_shoulder,right_shoulder)) # left Ear Shoulder Shoulder ( opposit)
                             right_ESS_angle=round(calculate_angle(right_ear,right_shoulder,left_shoulder)) # right Ear Shoulder Shoulder
-
                             center_NH_angle=round(calculate_angle(left_shoulder,nose,right_shoulder))
 
 
@@ -104,7 +107,7 @@ def gen_frames(Capture,stream_mode,rtsp_path,custom_rtsp_path,tracking,min_detec
                             else :
                                 rbg_color=(127,255,0) 
 
-                            # Visualize  
+                            # Visualize / Render landmarks  
                             mp_drawing.draw_landmarks(fliped_image, results.pose_landmarks,mp_position.POSE_CONNECTIONS,
                             mp_drawing.DrawingSpec(color=(245,117,66),thickness=2,circle_radius=2),mp_drawing.DrawingSpec(color=(245,66,230),thickness=2,circle_radius=2))
                             
@@ -115,9 +118,11 @@ def gen_frames(Capture,stream_mode,rtsp_path,custom_rtsp_path,tracking,min_detec
                             cv2.putText(fliped_image,stage,(15,12),cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,0.5,(0,0,0),1,cv2.LINE_AA)
                             cv2.putText(fliped_image,str(counter),(10,60),cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,2,(255,255,255),1,cv2.LINE_AA)
 
-                            cv2.putText(fliped_image, str(left_ESS_angle)+" degrees", tuple(np.multiply(left_shoulder,[640,480]).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)
-                            cv2.putText(fliped_image, str(right_ESS_angle)+" degrees", tuple(np.multiply(right_shoulder,[640,480]).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)
-                            cv2.putText(fliped_image, str(center_NH_angle)+" degrees", tuple(np.multiply(nose,[640,480]).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)                      
+                            org=[width,height]
+                            org1=[640,480]
+                            cv2.putText(fliped_image, str(left_ESS_angle)+" degrees", tuple(np.multiply(left_shoulder,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)
+                            cv2.putText(fliped_image, str(right_ESS_angle)+" degrees", tuple(np.multiply(right_shoulder,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)
+                            cv2.putText(fliped_image, str(center_NH_angle)+" degrees", tuple(np.multiply(nose,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)                      
                                    
                         except:
                             cv2.putText(fliped_image,"No Human Detected",(15,12),cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,0.5,(0,0,0),1,cv2.LINE_AA)                       
