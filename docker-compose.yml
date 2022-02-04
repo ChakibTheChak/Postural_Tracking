@@ -27,8 +27,9 @@ services:
       MYSQL_DATABASE: posturaltracker
       MYSQL_USER: chakib
       MYSQL_PASSWORD: ChakibHani1983
+    restart: 'always'
     volumes:
-      - ./db:/docker-entrypoint-initdb.d/:ro
+      - - mysql-data:/var/lib/mysql
     networks:
       - gateway
  
@@ -40,10 +41,14 @@ services:
     environment:
       PMA_HOST: Database
       PMA_PORT: 3306
+    restart: 'always'
     networks:
       - gateway
     ports:
       - '800:80'
 
 networks:
-  gateway: {}    
+  gateway: {}
+
+volumes:
+  mysql-data:    

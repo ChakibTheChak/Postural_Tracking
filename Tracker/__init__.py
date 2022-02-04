@@ -44,11 +44,19 @@ from  Tracker import routes
 if database_exists(str(db.engine.url)):
     print("Data base exists")
     db.create_all()
+    db.session.commit()
     try:
         base_Settings=models.Settings.query.get(1)
         base_User=models.User.query.get(1)
         base_Track=models.Track.query.get(1)
         print ("Table ID found :",base_User,base_Settings,base_Track)
+        if (base_Settings or base_User or base_Track) is None :
+            db.session.add(models.Settings(capture=0,rtsp_user="admin",rtsp_pw="admin",rtsp_ip="192.168.1.1",rtsp_port="554",rtsp_channel="1",rtsp_path="",rtsp_custom="",stream_mode=0,owner=1))
+            db.session.add(models.User(username="admin",email_address="chakib.mouhoubi@gmail" ,password="administrator"))
+            db.session.add(models.Track(detection_confidence=0.5,tracking_confidence=0.5))
+            db.create_all()
+            db.session.commit()
+
     except error as e :
         db.session.add(models.Settings(capture=0,rtsp_user="admin",rtsp_pw="admin",rtsp_ip="192.168.1.1",rtsp_port="554",rtsp_channel="1",rtsp_path="",rtsp_custom="",stream_mode=0,owner=1))
         db.session.add(models.User(username="admin",email_address="chakib.mouhoubi@gmail" ,password="administrator"))
