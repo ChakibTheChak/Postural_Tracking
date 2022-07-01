@@ -1,3 +1,4 @@
+from turtle import width
 from sqlalchemy import UniqueConstraint
 from Tracker import  db ,app,bcrypt,login_manager ,datetime
 from flask_login import UserMixin
@@ -13,6 +14,7 @@ class User(db.Model, UserMixin):
     password_hash=db.Column(db.String(length=128),nullable=False)
     settings=db.relationship('Settings',backref='owned_user',lazy=True)
     patient=db.relationship('Patient',backref='owned_user',lazy=True)
+    tracker=db.relationship('Track',backref='owned_user', lazy=True)
 
     @property 
     def password(self):
@@ -54,6 +56,9 @@ class Track(db.Model):
     id =db.Column(db.Integer(),primary_key=True)
     detection_confidence=db.Column(db.Float(), nullable=False)
     tracking_confidence=db.Column(db.Float(), nullable=False)
+    width=db.Column(db.Integer(), nullable=False)
+    height=db.Column(db.Integer(), nullable=False)
+    owner=db.Column(db.Integer() ,db.ForeignKey('user.id'))
 
 class Patient(db.Model):
     id =db.Column(db.Integer(),primary_key=True)
@@ -64,10 +69,19 @@ class Patient(db.Model):
     pathology=db.Column(db.String(length=50),nullable=False,unique=False)
     creation_date=db.Column(db.DateTime ,default=datetime.datetime.utcnow)
     owner=db.Column(db.Integer() ,db.ForeignKey('user.id'))
+    tracker=db.relationship('Monitoring',backref='owned_user', lazy=True)
     UniqueConstraint('first_name','last_name')
          
     # Magic methode to return first name insteade of  incremental id
     def __repr__(self):
         return f'Patient{self.first_name}'
+class Monitoring(db.Model):
+    id =db.Column(db.Integer(),primary_key=True)
+    data=db.Column(db.JSON,nullable=False)
+    pathology=db.Column(db.String(length=255), nullable=False)
+    owner=db.Column(db.Integer() ,db.ForeignKey('patient.id'))
+
+
+
 
 

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}
+Tracking settings Page
+{% endblock%}
+
+{% block content %}
+<body class=" text-center">
+    <div class="container">
+        
+            <form method="POST" class="track_form"  style="color:white ; text-align: justify " >
+                {{ form.hidden_tag() }} 
+                {{ track.hidden_tag}}
+                <br>
+                    <h1 class="h3 mb-3 font-weight-normal">
+                        Tracking Settings
+                    </h1>
+                <br>
+                {{form.tracking_confidence.label()}}
+                {{form.tracking_confidence(class="form-control",value=track.tracking_confidence ,placeholder= track.tracking_confidence )}}
+
+                {{form.detection_confidence.label()}}
+                {{form.detection_confidence(class="form-control",value=track.detection_confidence,placeholder= track.detection_confidence )}}
+
+                {{form.width.label()}}
+                {{form.width(class="form-control",value= track.width,placeholder= track.width )}}
+
+                {{form.height.label()}}
+                {{form.height(class="form-control",value=track.height ,placeholder= track.height )}}
+
+                <br>
+                {{form.submit(class="btn btn-lg  tn-block btn-primary")}}
+            </form>
+        
+
+    </div>
+</body>
+{% endblock %}

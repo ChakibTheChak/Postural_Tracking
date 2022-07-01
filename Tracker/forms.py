@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import  StringField,PasswordField,SubmitField,IntegerField,BooleanField,SelectField,DateField
+from wtforms import  StringField,PasswordField,SubmitField,IntegerField,BooleanField,SelectField,DateField,FloatField
 from wtforms.validators import Length ,EqualTo ,Email, DataRequired, ValidationError,IPAddress,URL, InputRequired
 from Tracker.models import User
 
@@ -49,6 +49,17 @@ class PatientForm(FlaskForm):
     email_address=StringField(label='Email Address ', validators=[Email(),DataRequired()])      
     pathology=StringField(label='Pathology ', validators=[DataRequired()])    
     submit=SubmitField(label='Save Patient')
+
+class TrackForm(FlaskForm):
+    # name validation function with the field to check in order to permit flaskform to call the validation function    
+    detection_confidence=FloatField(label='Detection confidence value', validators=[DataRequired()])
+    tracking_confidence=FloatField(label='Tracking confidence value', validators=[DataRequired()])
+    width=IntegerField(label='camera width resolution', validators=[DataRequired()])      
+    height=IntegerField(label='camera height resolution', validators=[DataRequired()])    
+    submit=SubmitField(label='Save Tracking Settings')
+
+class EditTrack(FlaskForm):
+    submit=SubmitField(label='Edit Track')
 
 class EditPatient(FlaskForm):
     submit=SubmitField(label='Edit Patient')

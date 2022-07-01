@@ -1,6 +1,6 @@
 from Tracker import app, render_template,Response, request ,db ,redirect,url_for, flash,get_flashed_messages ,login_user,logout_user, login_required, current_user,session
 from Tracker import functions ,forms , IntegrityError
-from Tracker.models import User , Settings, Patient 
+from Tracker.models import User , Settings, Patient , Track
 
 
 ## Global variables ###############################################################################################################################################
@@ -72,7 +72,7 @@ def patient_page():
  
     if EditPatient.validate_on_submit():
         id_edit=request.form.get("Edit")
-        print(id_edit) 
+        print("Patient ID is :",id_edit) 
         patient_to_edit=Patient.query.filter_by(id=id_edit).first()
         patient_to_edit.first_name=Patient_Form.first_name.data
         patient_to_edit.last_name=Patient_Form.last_name.data
@@ -168,7 +168,8 @@ def video():
     capture=user_settings.capture 
     stream_mode=user_settings.stream_mode
     rtsp_path=user_settings.rtsp_path
-    custom_rtsp_path=user_settings.rtsp_custom         
+    custom_rtsp_path=user_settings.rtsp_custom 
+    tracking=0    
     return Response(functions.gen_frames(capture,stream_mode,rtsp_path,custom_rtsp_path,tracking), mimetype='multipart/x-mixed-replace; boundary=frame')
 ## Streaming Route ###############################################################################################################################################
 @app.route('/Streaming')
@@ -178,22 +179,59 @@ def stream_page():
    hight=str(100)+"%" 
    width=str(100)+"%"
    patients=Patient.query.filter_by(owner=current_user.id).all()
+   form =forms.TrackForm(request.form)
+   track=Track.query.filter_by(owner=current_user.id).all()
    print (patients)
    tracking=0
-   return render_template('Video_Stream.html',hight=hight,width=width,patients=patients, btn_status='Start Tracking')
+   return render_template('Video_Stream.html',hight=hight,width=width,patients=patients, btn_status='Start Tracking',form=form,track=track)
 ## Tracking Route ###############################################################################################################################################
 @app.route('/tracking',methods=['POST','GET'])
-def track():
-    global tracking      
+def track_page():
+    global tracking
+    tracking=0
+    patients=Patient.query.filter_by(owner=current_user.id).all()
+    form =forms.TrackForm(request.form)
+    track=Track.query.filter_by(owner=current_user.id).all()
+    hight=str(100)+"%" 
+    width=str(100)+"%"      
     if request.method=='POST':
         if request.form.get('tracking')=='Start Tracking' :            
-            tracking= not tracking
-            hight=str(100)+"%" 
-            width=str(100)+"%"
-            patients=Patient.query.filter_by(owner=current_user.id).all()                    
-            return render_template('Video_Stream.html', btn_status='Stop Tracking',hight=hight,width=width,patients=patients)
+            tracking= not tracking                                          
+            return render_template('Video_Stream.html', btn_status='Stop Tracking',hight=hight,width=width,patients=patients,form=form, track=track)
         else :
             tracking= not tracking            
-            return render_template('Video_Stream.html', btn_status='Start Tracking')      
+            return render_template('Video_Stream.html', btn_status='Start Tracking',hight=hight,width=width,patients=patients,form=form, track=track)      
     elif request.method=="GET":
-        return render_template('Video_Stream.html',btn_status='Start Tracking')
+        return render_template('Video_Stream.html',btn_status='Start Tracking',hight=hight,width=width,patients=patients,form=form, track=track)
+## Tracking Seetings  Route ###############################################################################################################################################
+@app.route('/track', methods=['GET','POST'])
+@login_required
+def tracking_settings_page():
+    form =forms.TrackForm(request.form)
+    track_settings=Track.query.filter_by(owner=current_user.id).first()
+    if request.method=='POST': 
+        if form.validate_on_submit():
+            track_settings.tracking_confidence=form.tracking_confidence.data
+            track_settings.detection_confidence=form.detection_confidence.data 
+            track_settings.width=form.width.data
+            track_settings.height=form.height.data     
+            try:           
+                db.session.commit()
+                updated_track_settings=Settings.query.filter_by(owner=current_user.id).first()
+                flash(f' the new patient has been registred',category='success')
+                return  render_template('track_form.html', form=form ,track=updated_track_settings)
+            except IntegrityError as e :
+                db.session.rollback()
+                flash(f' there was a duplicated information :{e.orig.args} ',category='danger')
+                return  render_template('track_form.html', form=form ,track=track_settings)
+        if form.errors != {}:
+            for err_msg in form.errors.values():
+                flash(f' there was an error: {err_msg}',category='danger')
+        
+    else :
+        form.tracking_confidence.data=track_settings.tracking_confidence
+        form.detection_confidence.data=track_settings.detection_confidence
+        form.width.data=track_settings.width
+        form.height.data=track_settings.height
+
+    return  render_template('track_form.html', form=form , track=track_settings)

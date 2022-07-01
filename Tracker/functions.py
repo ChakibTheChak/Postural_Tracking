@@ -23,6 +23,9 @@ def calculate_angle(a,b,c):
 def gen_frames(Capture,stream_mode,rtsp_path,custom_rtsp_path,tracking,min_detec_confi=0.6,min_track_confi=0.6):
     counter=0
     stage=None
+
+    print("stream mode",stream_mode)
+    print("capture",Capture)
     # video Capture instance ##################################################################
     if  stream_mode==0:
         cap=cv2.VideoCapture(Capture,cv2.CAP_DSHOW)  # If new version of windows no need to add cv2.CAP_DSHOW as CAP_MSMF is the neuw defalut
@@ -31,14 +34,17 @@ def gen_frames(Capture,stream_mode,rtsp_path,custom_rtsp_path,tracking,min_detec
     elif stream_mode==2:
         cap=cv2.VideoCapture(custom_rtsp_path)
 
+    
     #Stream handeling ##################################################################
-    with mp_position.Pose(min_detection_confidence=min_detec_confi, min_tracking_confidence=min_track_confi) as pose:                
+    with mp_position.Pose(min_detection_confidence=min_detec_confi, min_tracking_confidence=min_track_confi) as pose:
+                  
         while cap.isOpened():
             ret,frame=cap.read()
             try:
                 if not tracking:
                     ret, buffer = cv2.imencode('.jpg', cv2.flip(frame,1))
                     frame = buffer.tobytes()
+                    print ("not streaming")
                     yield (b'--frame\r\n'
                         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
                 else :  
@@ -109,35 +115,45 @@ def gen_frames(Capture,stream_mode,rtsp_path,custom_rtsp_path,tracking,min_detec
 
                             # Visualize / Render landmarks  
                             mp_drawing.draw_landmarks(fliped_image, results.pose_landmarks,mp_position.POSE_CONNECTIONS,
-                            mp_drawing.DrawingSpec(color=(245,117,66),thickness=2,circle_radius=2),mp_drawing.DrawingSpec(color=(245,66,230),thickness=2,circle_radius=2))
+                            mp_drawing.DrawingSpec(color=(245,117,66),thickness=1,circle_radius=1),mp_drawing.DrawingSpec(color=(245,66,230),thickness=2,circle_radius=2))
                             
                             
                             cv2.rectangle(fliped_image,(0,0),(225,73),rbg_color,-1)
-                            cv2.rectangle(fliped_image,(0,0),(225,73),rbg_color,-1)
+                            
                             # Rep Data 
                             cv2.putText(fliped_image,stage,(15,12),cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,0.5,(0,0,0),1,cv2.LINE_AA)
                             cv2.putText(fliped_image,str(counter),(10,60),cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,2,(255,255,255),1,cv2.LINE_AA)
 
+                            # Important Origin to attache text to its specifc location
                             org=[width,height]
-                            org1=[640,480]
-                            cv2.putText(fliped_image, str(left_ESS_angle)+" degrees", tuple(np.multiply(left_shoulder,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)
-                            cv2.putText(fliped_image, str(right_ESS_angle)+" degrees", tuple(np.multiply(right_shoulder,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)
-                            cv2.putText(fliped_image, str(center_NH_angle)+" degrees", tuple(np.multiply(nose,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),2 ,cv2.LINE_AA)                      
+                            # org1=[640,480]
+                            cv2.putText(fliped_image, str(left_ESS_angle), tuple(np.multiply(left_shoulder,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),1 ,cv2.LINE_AA)
+                            cv2.putText(fliped_image, str(right_ESS_angle), tuple(np.multiply(right_shoulder,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),1,cv2.LINE_AA)
+                            cv2.putText(fliped_image, str(center_NH_angle), tuple(np.multiply(nose,org).astype(int)), cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),1,cv2.LINE_AA)
+                            ret, buffer = cv2.imencode('.jpg', fliped_image)                        
+                            frame = buffer.tobytes()
+                            print('streaming start')
+                            yield (b'--frame\r\n'
+                                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                      
                                    
                         except:
-                            cv2.putText(fliped_image,"No Human Detected",(15,12),cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,0.5,(0,0,0),1,cv2.LINE_AA)                       
+                            print("Print no Human")
+                            cv2.putText(fliped_image,"No Human Detected",(15,12),cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,0.5,(0,0,0),1,cv2.LINE_AA)
+                            ret, buffer = cv2.imencode('.jpg', fliped_image)                        
+                            frame = buffer.tobytes()
+                            print('streaming start')
+                            yield (b'--frame\r\n'
+                                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')                       
                         
-                        ret, buffer = cv2.imencode('.jpg', fliped_image)                        
-                        frame = buffer.tobytes()
-                        yield (b'--frame\r\n'
-                                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
+                        
             except Exception as e:
                     cap.release()
                     print("Video process Error:",e)
-                    cv2.destroyAllWindows() 
+                    cv2.destroyAllWindows()
+                    print(e) 
                     pass
-        # when cap is closed         
+        # # when cap is closed         
         cap.release()
         cv2.destroyAllWindows() 
 

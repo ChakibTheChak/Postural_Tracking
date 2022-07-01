@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 5000:5000
+      - "5000" # When runing with gninx and gunicorn the port is allocated with that and not "5000:5000"
     links:
       - Database    
     restart: 'always'
@@ -15,8 +15,8 @@ services:
       - .:/app
     environment:
       - DB_HOST=Database
-    networks:
-      - gateway  
+    # networks:
+    #   - gateway
 
   Database:
     image: mysql:5.7
@@ -29,10 +29,10 @@ services:
       MYSQL_PASSWORD: ChakibHani1983
     restart: 'always'
     volumes:
-      - - mysql-data:/var/lib/mysql
-    networks:
-      - gateway
- 
+      - mysql-data:/var/lib/mysql
+    # networks:
+    #   - gateway
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: 'Phpmyadmin'
@@ -42,13 +42,31 @@ services:
       PMA_HOST: Database
       PMA_PORT: 3306
     restart: 'always'
-    networks:
-      - gateway
+    # networks:
+    #   - gateway
     ports:
       - '800:80'
+  
+  nginx :
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - posturaltracker
+    ports:
+      - '5000:5000' 
 
-networks:
-  gateway: {}
+# networks:
+#     gateway: {}
 
 volumes:
-  mysql-data:    
+    mysql-data:
+
+networks:
+  default:
+    driver: bridge
+    name: posturaltracker 
+
+
+
+ 
